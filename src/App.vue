@@ -2,11 +2,11 @@
   <v-app>
     <v-app-bar
       app
-      color="primary"
+      color="orange"
       dark
     >
       <div class="d-flex align-center">
-        路線王 ～駅名だけで路線を当てるクイズゲーム～
+        小倉百人一首クイズ
       </div>
     </v-app-bar>
 

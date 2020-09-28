@@ -27,42 +27,18 @@
         </v-card>
       </v-col>
       <v-col cols="12">
-        <v-card>
+        <v-card class="mx-auto" max-width="500">
+          <v-img
+            :src="getAnswer().image.value"
+            width="500"
+          ></v-img>
           <v-list-item>
             <v-list-item-content>
               <v-list-item-title class="headline mb-1 text-align-center font-color-green">
-                {{ getAnswer() }}
+                {{ getAnswer().karuta.value }}
               </v-list-item-title>
             </v-list-item-content>
           </v-list-item>
-        </v-card>
-      </v-col>
-      <v-col cols="12">
-        <v-card>
-          <v-expansion-panels>
-            <v-expansion-panel>
-              <v-expansion-panel-header style="padding:0">
-                <span class="headline mb-1 text-align-center font-color-green">
-                  路線内の駅
-                </span>
-              </v-expansion-panel-header>
-              <v-expansion-panel-content>
-                <v-timeline>
-                  <v-timeline-item 
-                    v-for="(obj,i) in getStations()"
-                    :key="i"
-                    :large="getCandidates().includes(obj)"
-                    right
-                    icon="mdi-train">
-                    <span slot="opposite"
-                      :style="{'font-size':getCandidates().includes(obj)?'x-large':'normal'}">
-                      {{ obj }}
-                    </span>
-                  </v-timeline-item>
-                </v-timeline>
-              </v-expansion-panel-content>
-            </v-expansion-panel>
-          </v-expansion-panels>
         </v-card>
       </v-col>
       <v-col cols="12">

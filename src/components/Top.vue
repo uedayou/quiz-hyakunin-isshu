@@ -5,7 +5,8 @@
         <v-card>
           <v-row justify="center">
             <v-col cols="auto">
-              <v-img src="../assets/rosenoh.jpg"
+              <v-img src="../assets/onono_komachi.png"
+                contain
                 height="200px"
                 style="max-width:400px"></v-img>
             </v-col>
@@ -13,7 +14,7 @@
           <v-list-item>
             <v-list-item-content>
               <v-list-item-title class="headline mb-1 text-align-center">
-                路線王
+                小倉百人一首クイズ
               </v-list-item-title>
             </v-list-item-content>
           </v-list-item>
@@ -21,10 +22,10 @@
             <v-col cols="auto">
               <v-card-text style="max-width:400px">
                 <div>
-                鉄道駅名の候補だけを見て、日本のどの鉄道路線かを当てるクイズゲームアプリです。
+                かるたの読み札の文字から、該当する読み札の画像を当てるゲームです。難易度に応じて候補の画像の枚数が異なります。できるだけ早く解答してください。
                 </div>
                 <div>
-                現在、{{ $store.getters.getData.length }} の鉄道路線からクイズが出題されます。
+                {{ $store.getters.getData.length }} の中からクイズが出題されます。
                 </div>
               </v-card-text>
             </v-col>

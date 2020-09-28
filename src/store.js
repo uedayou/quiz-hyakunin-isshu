@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import { ulid } from 'ulid'
-import quizData from './assets/data.json'
+import quizData from './assets/hyakunin-isshu.json'
 
 Vue.use(Vuex)
 
@@ -13,7 +13,7 @@ export default new Vuex.Store({
     mode: "normal",
     results: [],
     quizzes: [],
-    lines: [],
+    data: [],
   },
   getters: {
     getMode: state => {
@@ -42,15 +42,19 @@ export default new Vuex.Store({
       return state.quizzes.find(q=>q.id === id);
     },
     getData: (state) => {
-      let lines = state.lines;
-      if (lines.length===0) {
-        const num = 10;
-        // 名城線は 2号と4号とあり、クイズとして紛らわしいので候補から削除
-        let items = quizData.filter(d=>d.nstation>=num&&!d.line.match(/名城線/));
-        for (const item of items) lines.push(item.label);
-        state.lines = lines;
+      if (state.data.length==0) {
+        let data = quizData.results.bindings;
+        data = data.filter(d=>d.image.value.match(/^http/)&&!d.image.value.match(/R0000001/)&&!d.image.value.match(/image\.oml\.city\.osaka\.lg\.jp/));
+        data = data.map(d=>{
+          const found = d.image.value.match(/\/\d+?,\d+?,(\d+)?,(\d+)?\//);
+          if (found?.length>1) {
+            d.image.value = d.image.value.replace("/full/", "/300,/");
+          }
+          return d;
+        })
+        state.data = data;
       }
-      return lines;
+      return state.data;
     },
     getNumberOfQuize: (state) => {
       return state.nQuiz;
@@ -66,20 +70,17 @@ export default new Vuex.Store({
     setQuizzes(state, quizzes) {
       state.quizzes = quizzes;
     },
-    setLines(state, lines) {
-      state.lines = lines;
-    },
     setMode(state, mode) {
       state.mode = mode;
       if (mode==="hard") {
-        state.nCandidate = 4;
+        state.nCandidate = 12;
         state.answerTime = 30;
       } else if (mode==="easy") {
-        state.nCandidate = 8;
-        state.answerTime = 60;
+        state.nCandidate = 4;
+        state.answerTime = 30;
       } else {
-        state.nCandidate = 6;
-        state.answerTime = 45;
+        state.nCandidate = 8;
+        state.answerTime = 30;
       }
     },
     setNumberOfQuize: (state, number) => {
@@ -90,12 +91,15 @@ export default new Vuex.Store({
     initialize(context) {
       context.commit("setResults", []);
       let quizzes = [];
-      const lines = shuffle(context.getters.getData);
-      for (let i=0;i<context.getters.getNumberOfQuize;i++) {
-        const answer = lines.shift();
-        const candidates = [answer];
-        for (let i=0;i<7;i++) {
-          candidates.push(lines.shift());
+      let data = shuffle(context.getters.getData);
+      data = data.filter((v1,i1,a1) =>
+        a1.findIndex(v2 =>
+          v1.karuta.value===v2.karuta.value) === i1);
+      for (const i of [...Array(context.getters.getNumberOfQuize)]) { // eslint-disable-line no-unused-vars
+        let answer = data.shift();
+        let candidates = [answer];
+        for (let ii=0;ii<context.getters.getNumberOfCandidate-1;ii++) {
+          candidates.push(data.shift());
         }
         quizzes.push({ answer, candidates:shuffle(candidates) });
       }

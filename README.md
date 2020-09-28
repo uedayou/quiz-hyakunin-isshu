@@ -1,13 +1,14 @@
-# 路線王
+# 小倉百人一首クイズ
 
-鉄道オープンデータの[鉄道駅LOD](https://uedayou.net/jrslod/)を使った
-鉄道路線を当てるクイズゲームです。
+[小倉百人一首LOD](http://karutalod.web.fc2.com/ogura.html)と[rosenoh](https://github.com/uedayou/rosenoh)をマッシュアップして小倉百人一首のクイズゲームを作りました。
 
-路線内の駅名を元に時間内に路線名を検索して選択してください。
+実際のデータは、[小倉百人一首LODの世界](https://www.mirko.jp/ogura/)のSPARQLエンドポイントから取得しました。
+
+トップページの画像に[いらすとや](https://www.irasutoya.com/)さんのイラスト画像を使用しています。
 
 ### アプリ
 
-<https://rosenoh.uedayou.net/>
+<https://hyakunin-isshu.uedayou.net/>
 
 ## Project setup
 ```

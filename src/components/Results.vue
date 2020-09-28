@@ -52,6 +52,19 @@
             :items="results || []"
             disable-sort
             hide-default-footer>
+            <template #item.answer="{ item }">
+              <a target="_blank" :href="item.answer.image.value">
+                {{ item.answer.karuta.value }}
+              </a>
+            </template>
+            <template #item.select="{ item }">
+              <a v-show="item.select.image.value!='#'" target="_blank" :href="item.select.image.value">
+                {{ item.select.karuta.value }}
+              </a>
+              <span v-show="!item.select.image || item.select.image.value=='#'">
+                {{ item.select.karuta.value }}
+              </span>
+            </template>
           </v-data-table>
         </v-card>
       </v-col>
@@ -78,7 +91,7 @@ export default {
     headers: [
       { text: '問題', align: 'start', value: 'index' },
       { text: '正誤', value: "correctness" },
-      { text: '解答', value: 'select' },
+      { text: '解答', value: "select" },
       { text: '正解', value: 'answer' },
       { text: '解答時間', value: 'stime' },
     ],
@@ -90,7 +103,7 @@ export default {
   }),
   mounted: function() {
     let res = this.$store.getters.getResults;
-    if (!res) {
+    if (!res || !res.length) {
       this.$router.replace({ name: "top" });
     }
     this.nQuiz = res.length;
@@ -98,7 +111,12 @@ export default {
     for (let obj of res) {
       obj.correctness = obj.correct?"〇":"×";
       this.totalTime += obj.time;
-      if (obj.select.length===0) obj.select = "(時間切れ)";
+      if (!obj.select) {
+        obj.select = {
+          karuta:{ value: "(時間切れ)" },
+          image:{ value: "#"}
+        }
+      }
       obj.stime = obj.time+"秒"
       if (obj.correct) this.nCorrect++;
     }

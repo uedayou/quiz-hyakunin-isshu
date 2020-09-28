@@ -9,25 +9,7 @@
                 {{ quiz && '問題'+quiz.index }}
               </div>
               <v-list-item-title class="headline mb-1">
-                以下の駅を含む路線は？
-              </v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
-        </v-card>
-      </v-col>
-      <v-col 
-        cols="6"
-        v-show="candidates"
-        v-for="(obj,i) in candidates"
-        :key="i"
-        >
-        <v-card>
-          <v-list-item>
-            <v-list-item-content>
-              <v-list-item-title
-                class="headline mb-1 text-align-center"
-                :class="{'font-color-gray': getRestTime(i)>0 }">
-                {{ getQuestionItem(i) }}
+                {{ quiz && getKarutaTextByCurrentTime(quiz.answer.karuta.value) }}
               </v-list-item-title>
             </v-list-item-content>
           </v-list-item>
@@ -41,12 +23,12 @@
             <v-progress-circular
               rotate="-90"
               size="100"
-              :value="100-currentTime/startTime*100"
+              :value="100-Math.floor(currentTime)/startTime*100"
               width="10"
               :color="getTimerColor()"
             >
             <span class="currentTime">
-              {{ currentTime }}
+              {{ Math.floor(currentTime) }}
             </span>
             </v-progress-circular>
           </v-col>
@@ -61,22 +43,22 @@
           </v-list-item>
           <v-list-item>
             <div class="overline mb-4">
-              以下の路線名をひとつ選択して解答ボタンを押してください。
+              以下の画像をひとつ選択して解答ボタンを押してください。
             </div>
           </v-list-item>
           <v-list-item>
             <v-list-item-content>
               <v-btn-toggle
-                v-model="answer">
+                v-model="select" style="width:100%;">
                 <v-row justify="center">
                   <v-col 
-                    cols="6"
+                    cols="3"
                     class="col-answer"
                     v-for="(candidate,i) in quiz?quiz.candidates:[]"
                     :key="i"
+                    :ref="'cand-'+i"
                   >
-                    <v-btn class="btn-answer title" active-class="btn-answer-active">
-                      {{ candidate }}
+                    <v-btn :style="{backgroundImage: 'url(' + candidate.image.value + ')', backgroundSize: 'cover', width: '100%', height: getHeightFromIiifUrl(candidate.image.value, 'cand-'+i)+'px'}" class="btn-answer title" active-class="btn-answer-active">
                     </v-btn>
                   </v-col>
                 </v-row>
@@ -88,7 +70,7 @@
               <v-row justify="center">
                 <v-col cols="auto">
                   <v-btn 
-                    :disabled="answer == null || currentTime <= 0"
+                    :disabled="select == null || currentTime <= 0"
                     depressed large color="primary"
                     @click="complete">
                     解答する
@@ -123,9 +105,6 @@
 </template>
 
 <script>
-import axios from "axios";
-import url from 'url';
-
 export default {
   name: 'Question',
   data: () => ({
@@ -140,6 +119,7 @@ export default {
     startTime: 30,
     currentTime: 0,
     dialog: false,
+    select: null,
   }),
   mounted: function() {
     if (this.$route.params.id) {
@@ -156,34 +136,20 @@ export default {
         this.$router.replace({ name: "top" });
         return;
       }
-      this.line = this.quiz.answer;
-      const url = "https://uedayou.net/jrslod/"+this.line;
-      let res = await axios.get(url+".json");
-      this.stations = getLineStations(res.data, url);
-      this.candidates = this.getCandidates([...this.stations]);
       this.loading = false;
       this.currentTime = this.startTime;
       this.start();
     },
-    getCandidates: function(stations) {
-      const num = this.$store.getters.getNumberOfCandidate;
-      let candidates = [];
-      for (let i=0;i<num;i++) {
-        const index = Math.floor(Math.random()*stations.length);
-        candidates.push(stations[index]);
-        stations.splice(index, 1);
-      }
-      return candidates;
-    },
     count: function() {
-      if(this.currentTime === 0) {
+      if(Math.floor(this.currentTime) <= 0) {
         this.complete();
       } else {
-        this.currentTime--;
+        this.currentTime -= 0.2;
+        if (this.currentTime < 0) this.currentTime = 0;
       }
     },
     start: function() {
-      this.timerObj = setInterval(()=>{this.count()}, 1000)
+      this.timerObj = setInterval(()=>{this.count()}, 200)
     },
     stop: function() {
       clearInterval(this.timerObj);
@@ -192,6 +158,11 @@ export default {
       this.stop();
       this.setResult();
       this.dialog = true;
+    },
+    getKarutaTextByCurrentTime: function(text) {
+      if (text.length>Math.floor(this.startTime*3-this.currentTime*3))
+        return text.substring(0, Math.floor(this.startTime*3-this.currentTime*3));
+      return text;
     },
     goAnswerPage: function() {
       this.dialog = false;
@@ -203,13 +174,13 @@ export default {
       });
     },
     setResult: function() {
+      const select = this.quiz.candidates[this.select]||null;
       this.$store.commit("setResult", {
         ...this.quiz,
-        stations: this.stations,
         candidates: this.candidates,
-        select: this.quiz.candidates[this.answer]||"",
-        correct: this.quiz.candidates[this.answer]===this.line,
-        time: this.startTime-this.currentTime,
+        select,
+        correct: select===this.quiz.answer,
+        time: this.startTime-Math.floor(this.currentTime),
       });
     },
     getRestTime: function(number) {
@@ -232,26 +203,18 @@ export default {
         return "yellow";
       }
       return "green";
-    }
-  }
-}
-
-const getLineStations = (data, uri) => {
-  const obj = data[uri]["http://purl.org/dc/terms/relation"];
-  let bnodes = [];
-  for (const v of obj) bnodes.push(v.value);
-  let stations = [];
-  for (const bnUri of bnodes) {
-    const bn = data[bnUri];
-    for (const st of bn["http://purl.org/dc/terms/hasPart"]) {
-      const pathname = url.parse(st.value).pathname;
-      const matches = pathname.match(/^\/([^/]+?)\/([^/]+?)\/([^/]+?)\/(.+$)/i);
-      if (matches.length===5) {
-        stations.push(matches[4]);
+    },
+    getHeightFromIiifUrl: function(url, id) {
+      if (!this.$refs[id]) {
+        return 0;
       }
+      const width = this.$refs[id][0].clientWidth-24;
+      const regex = /\/\d+?,\d+?,(\d+)?,(\d+)?\//;
+      const found = url.match(regex);
+      if (found?.length<=1) return 0;
+      return found[2]*width/found[1];
     }
   }
-  return stations;
 }
 
 </script>

@@ -5,7 +5,7 @@ module.exports = {
   pages: {
     index: {
       entry: 'src/main.js',
-      title: '路線王 ～駅名だけで鉄道路線を当てるクイズゲーム～',
+      title: '小倉百人一首クイズ',
     }
   },
   publicPath: './'
