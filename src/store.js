@@ -73,13 +73,13 @@ export default new Vuex.Store({
     setMode(state, mode) {
       state.mode = mode;
       if (mode==="hard") {
-        state.nCandidate = 12;
+        state.nCandidate = 20;
         state.answerTime = 30;
       } else if (mode==="easy") {
         state.nCandidate = 4;
         state.answerTime = 30;
       } else {
-        state.nCandidate = 8;
+        state.nCandidate = 12;
         state.answerTime = 30;
       }
     },
