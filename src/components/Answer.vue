@@ -34,7 +34,7 @@
           ></v-img>
           <v-list-item>
             <v-list-item-content>
-              <v-list-item-title class="headline mb-1 text-align-center font-color-green">
+              <v-list-item-title class="headline mb-1 text-align-center font-color-green" style="white-space: normal;">
                 {{ getAnswer().karuta.value }}
               </v-list-item-title>
             </v-list-item-content>

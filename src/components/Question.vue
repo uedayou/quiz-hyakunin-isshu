@@ -8,7 +8,7 @@
               <div class="overline mb-4">
                 {{ quiz && '問題'+quiz.index }}
               </div>
-              <v-list-item-title class="headline mb-1">
+              <v-list-item-title class="headline mb-1" style="white-space: normal;">
                 {{ quiz && getKarutaTextByCurrentTime(quiz.answer.karuta.value) }}
               </v-list-item-title>
             </v-list-item-content>
@@ -52,7 +52,7 @@
                 v-model="select" style="width:100%;">
                 <v-row justify="center">
                   <v-col 
-                    cols="3"
+                    :cols="$vuetify.breakpoint.mobile ? 6 : 3"
                     class="col-answer"
                     v-for="(candidate,i) in quiz?quiz.candidates:[]"
                     :key="i"
@@ -233,9 +233,12 @@ export default {
 .theme--light.v-btn-toggle:not(.v-btn-toggle--group) .v-btn.btn-answer-active {
   border: 4px solid red !important;
 }
+.btn-answer:before,
+.v-btn:not(.v-btn--text):not(.v-btn--outlined):hover:before,
 .theme--light.v-btn-toggle:not(.v-btn-toggle--group) .v-btn.btn-answer-active:before {
   opacity: 0;
 }
+
 
 .col-answer {
   margin:0;
