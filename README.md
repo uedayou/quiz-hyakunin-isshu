@@ -10,6 +10,16 @@
 
 <https://hyakunin-isshu.uedayou.net/>
 
+### クイズデータの更新
+
+もしクイズデータを更新したい場合は以下を実行してください。
+
+```
+npm run update
+```
+
+[小倉百人一首LODの世界](https://www.mirko.jp/ogura/)のSPARQLエンドポイントよりデータ取得して、クイズデータを更新します。
+
 ## Project setup
 ```
 npm install
