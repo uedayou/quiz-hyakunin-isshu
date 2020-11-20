@@ -108,6 +108,7 @@
 export default {
   name: 'Question',
   data: () => ({
+    utterThis: new SpeechSynthesisUtterance(),
     loading: false,
     answer: null,
     line: null,
@@ -160,8 +161,19 @@ export default {
       this.dialog = true;
     },
     getKarutaTextByCurrentTime: function(text) {
-      if (text.length>Math.floor(this.startTime*3-this.currentTime*3))
-        return text.substring(0, Math.floor(this.startTime*3-this.currentTime*3));
+      const words = text.split(" ");
+      const index = Math.floor(this.startTime*3-this.currentTime*3);
+      if (text.length>index) {
+        let len = 0;
+        for (const word of words) {
+          if (len+1==index) {
+            this.startSpeech(word);
+            break;
+          }
+          len += word.length+1;
+        }
+        return text.substring(0, index);
+      }
       return text;
     },
     goAnswerPage: function() {
@@ -213,6 +225,16 @@ export default {
       const found = url.match(regex);
       if (found?.length<=1) return 0;
       return found[2]*width/found[1];
+    },
+    startSpeech: function(text) {
+      if (this.utterThis.text != text) {
+        const synth = window.speechSynthesis;
+        this.utterThis.text = text;
+        console.log(this.utterThis.text);
+        this.utterThis.lang = 'ja-JP';
+        this.utterThis.rate = 0.6;
+        synth.speak(this.utterThis);
+      }
     }
   }
 }
